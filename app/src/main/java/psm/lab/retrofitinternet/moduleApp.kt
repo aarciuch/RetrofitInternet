@@ -4,6 +4,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import psm.lab.retrofitinternet.UDP.UdpVM
 import psm.lab.retrofitinternet.retrofit.ApiService
 import psm.lab.retrofitinternet.retrofit.ApiService.Companion.BASE_URL
 import psm.lab.retrofitinternet.retrofit.RetrofitVM
@@ -17,6 +18,7 @@ val moduleApp = module {
     single { provideRetrofit() }
     single { provideApiService(get()) }
     viewModel { RetrofitVM(get(), get()) }
+    viewModel { UdpVM(get()) }
 }
 
 fun provideRetrofit(): Retrofit {

@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.twotone.AccountBox
 import androidx.compose.material.icons.twotone.Home
+import androidx.compose.material.icons.twotone.Share
 import androidx.compose.material.icons.twotone.Star
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.activity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -45,14 +48,14 @@ class MainActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             RetrofitInternetTheme {
-                MainScreen()
+                MainScreen(this)
             }
         }
     }
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(activity: MainActivity) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -65,7 +68,7 @@ fun MainScreen() {
             modifier = Modifier.padding(it)
         ) {
             composable(route = Pages.Page1.name) { Page1() }
-            composable(route = Pages.Page2.name) { Page2() }
+            composable(route = Pages.Page2.name) { Page2(activity = activity) }
         }
     }
 }
@@ -79,13 +82,13 @@ fun BottomBar(navController: NavController) {
         ) {
             Column() {
                 Text(
-                    text = "Page1",
+                    text = "Retrofit",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 20.sp
                 )
                 IconButton(onClick = { navController.navigate(route = Pages.Page1.name) }) {
-                    Icon(Icons.TwoTone.Home, contentDescription = "Page1",
+                    Icon(Icons.TwoTone.AccountBox, contentDescription = "Page1",
                         Modifier
                             .width(50.dp)
                             .height(50.dp))
@@ -93,13 +96,13 @@ fun BottomBar(navController: NavController) {
             }
             Column() {
                 Text(
-                    text = "Page2",
+                    text = "Udp",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 20.sp
                 )
                 IconButton(onClick = { navController.navigate(route = Pages.Page2.name) }) {
-                    Icon(Icons.TwoTone.Star, contentDescription = "Page2",
+                    Icon(Icons.TwoTone.Share, contentDescription = "Page2",
                         Modifier
                             .width(50.dp)
                             .height(50.dp))
@@ -115,7 +118,7 @@ fun TopBar() {
              .padding(8.dp)
              .fillMaxWidth()
             .background(Color.Yellow),
-        text = "Retrofit Example",
+        text = "Retrofit and UDP Example",
         fontSize = 30.sp,
         textAlign = TextAlign.Center)
 }
