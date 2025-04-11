@@ -48,14 +48,14 @@ class MainActivity : ComponentActivity() {
         //enableEdgeToEdge()
         setContent {
             RetrofitInternetTheme {
-                MainScreen(this)
+                MainScreen()
             }
         }
     }
 }
 
 @Composable
-fun MainScreen(activity: MainActivity) {
+fun MainScreen() {
     val navController = rememberNavController()
 
     Scaffold(
@@ -68,7 +68,7 @@ fun MainScreen(activity: MainActivity) {
             modifier = Modifier.padding(it)
         ) {
             composable(route = Pages.Page1.name) { Page1() }
-            composable(route = Pages.Page2.name) { Page2(activity = activity) }
+            composable(route = Pages.Page2.name) { Page2() }
         }
     }
 }
