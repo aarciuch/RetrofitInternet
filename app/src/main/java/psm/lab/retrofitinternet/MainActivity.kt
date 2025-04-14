@@ -120,5 +120,6 @@ fun TopBar() {
             .background(Color.Yellow),
         text = "Retrofit and UDP Example",
         fontSize = 30.sp,
+        color = Color.Black,
         textAlign = TextAlign.Center)
 }

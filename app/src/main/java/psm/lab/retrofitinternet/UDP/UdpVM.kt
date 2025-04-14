@@ -1,44 +1,26 @@
 package psm.lab.retrofitinternet.UDP
 
 import android.Manifest
-import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.pm.PackageManager
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkInfo
-import android.net.NetworkRequest
-import android.net.wifi.WifiInfo
-import android.net.wifi.WifiManager
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresPermission
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.bundle.Bundle
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import psm.lab.retrofitinternet.retrofit.ApiService
+import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.net.Socket
 
 class UdpVM(application: Application) : AndroidViewModel(application) {
     private val context = application.applicationContext
     private val _acceessFineLocationPermissionGranted = MutableStateFlow(false)
     val acceessFineLocationPermissionGranted: StateFlow<Boolean> = _acceessFineLocationPermissionGranted
+    private var _receivedMessage = MutableStateFlow("")
+    val receivedMessage : StateFlow<String> = _receivedMessage
 
 
 
@@ -59,33 +41,43 @@ class UdpVM(application: Application) : AndroidViewModel(application) {
     }
 
     private fun fetchNetworkSettings() {
-        val connectivityManager = getApplication<Application>().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(network) ?: return
 
-        val ssid = if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-            val transportInfo = networkCapabilities.transportInfo
-            if (transportInfo is WifiInfo) transportInfo.ssid else "Unknown"
-        } else "Not Wi-Fi"
-
-        val linkDown = networkCapabilities.linkDownstreamBandwidthKbps.toString() // Przykład
-        val signalStrength = networkCapabilities.signalStrength ?: -1
-
-        val ipAddress = ""
-
-
-        _networkSettings.value = NetworkSettings(
-            ssid = ssid,
-            ipAddress = ipAddress,
-            signalStrength = signalStrength,
-            linkDown = linkDown
-        )
-
-        Log.i("RETROFIT", "${_networkSettings.value}")
     }
 
     private fun convertIntToIpAddress(ip: Int): String {
         return "${ip and 0xFF}.${ip shr 8 and 0xFF}.${ip shr 16 and 0xFF}.${ip shr 24 and 0xFF}"
+    }
+
+    fun sendUdp(message: String, ip: String, port: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val socket = DatagramSocket()
+                val data = message.toByteArray()
+                val packet = DatagramPacket(data, data.size, InetAddress.getByName(ip), port)
+                socket.send(packet)
+                socket.close()
+            }
+        }
+    }
+
+    fun listenUdp(startListen: Boolean, port: Int) {
+        var socket: DatagramSocket? = null
+        val buffer = ByteArray(1024)
+        var packet = DatagramPacket(buffer, buffer.size)
+        if (startListen) {
+            try {
+                socket = DatagramSocket(port)
+                packet = DatagramPacket(buffer, buffer.size)
+                socket!!.receive(packet)
+                _receivedMessage.value = String(packet.data, Charsets.UTF_8)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                socket?.close()
+            }
+        } else {
+            socket?.close()
+        }
     }
 }
 
